@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Stock Close</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f7f9fc;
+      margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      max-width: 500px;
+      margin: 80px auto;
+      background: white;
+      padding: 24px;
+      border-radius: 12px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+    }
+
+    h1 {
+      margin-top: 0;
+      font-size: 28px;
+      text-align: center;
+    }
+
+    p {
+      color: #555;
+      text-align: center;
+    }
+
+    .form-group {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    input {
+      flex: 1;
+      padding: 12px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+    }
+
+    button {
+      padding: 12px 18px;
+      font-size: 16px;
+      border: none;
+      border-radius: 8px;
+      background: #2563eb;
+      color: white;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #1d4ed8;
+    }
+
+    .result {
+      margin-top: 24px;
+      padding: 16px;
+      background: #f1f5f9;
+      border-radius: 8px;
+      display: none;
+    }
+
+    .error {
+      margin-top: 20px;
+      color: #b91c1c;
+      text-align: center;
+      display: none;
+    }
+
+    .loading {
+      margin-top: 20px;
+      text-align: center;
+      color: #444;
+      display: none;
+    }
+
+
+    footer {
+      text-align: center;
+      margin-top: 40px;
+      padding: 16px;
+      color: #64748b;
+      font-size: 13px;
+    }
+
+    footer a {
+      color: #2563eb;
+      text-decoration: none;
+    }
+
+    footer a:hover {
+      text-decoration: underline;
+    }
+
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Stock Close</h1>
+    <p>Enter a stock ticker to view its last closed price.</p>
+
+    <div class="form-group">
+      <input id="tickerInput" type="text" placeholder="e.g. AAPL" />
+      <button id="searchButton">Search</button>
+    </div>
+
+    <div id="loadingMessage" class="loading">Loading...</div>
+    <div id="errorMessage" class="error"></div>
+
+    <div id="resultBox" class="result">
+      <h3 id="resultTicker"></h3>
+      <p id="resultCompany"></p>
+      <p id="resultDate"></p>
+      <p id="resultPrice"></p>
+    </div>
+  </div>
+
+<footer>
+  © 2026 Murali Krishnan Rajendran. All rights reserved.
+  |
+  <a href="mailto:mkr.2096@gmail.com">mkr.2096@gmail.com</a>
+</footer>
+
+  <script>
+    const tickerInput = document.getElementById("tickerInput");
+    const searchButton = document.getElementById("searchButton");
+    const loadingMessage = document.getElementById("loadingMessage");
+    const errorMessage = document.getElementById("errorMessage");
+    const resultBox = document.getElementById("resultBox");
+    const resultCompany = document.getElementById("resultCompany");
+    const resultTicker = document.getElementById("resultTicker");
+    const resultDate = document.getElementById("resultDate");
+    const resultPrice = document.getElementById("resultPrice");
+
+    async function fetchPrice() {
+      const ticker = tickerInput.value.trim().toUpperCase();
+
+      errorMessage.style.display = "none";
+      resultBox.style.display = "none";
+
+      if (!ticker) {
+        errorMessage.textContent = "Please enter a ticker symbol.";
+        errorMessage.style.display = "block";
+        return;
+      }
+
+      loadingMessage.style.display = "block";
+
+      try {
+        const response = await fetch(`/api/price?ticker=${encodeURIComponent(ticker)}`);
+        const data = await response.json();
+
+        loadingMessage.style.display = "none";
+
+        if (!response.ok) {
+          errorMessage.textContent = data.error || "Something went wrong.";
+          errorMessage.style.display = "block";
+          return;
+        }
+
+        resultTicker.textContent = `Ticker: ${data.ticker}`;
+        resultCompany.textContent = `Company: ${data.companyName}`;
+        resultDate.textContent = `Date: ${data.date}`;
+        resultPrice.textContent = `Last Closed Price: $${Number(data.lastClosedPrice).toFixed(2)}`;
+
+        resultBox.style.display = "block";
+      } catch (error) {
+        loadingMessage.style.display = "none";
+        errorMessage.textContent = "Unable to connect to the server.";
+        errorMessage.style.display = "block";
+      }
+    }
+
+    searchButton.addEventListener("click", fetchPrice);
+
+    tickerInput.addEventListener("keydown", function(event) {
+      if (event.key === "Enter") {
+        fetchPrice();
+      }
+    });
+  </script>
+</body>
+</html>
