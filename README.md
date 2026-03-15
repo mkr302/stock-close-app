@@ -78,7 +78,9 @@ The app returns clear error messages for cases such as:
 ## Deployment
 
 This app can be deployed publicly using platforms such as Vercel.
-
+```https
+Demo (Public URL): https://stock-close-app.vercel.app/
+```
 ## Author
 
 **Murali Krishnan Rajendran**
